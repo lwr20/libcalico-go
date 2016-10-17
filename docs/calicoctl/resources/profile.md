@@ -3,48 +3,49 @@ Profile objects can be thought of as describing the properties of an endpoint (v
 
 ### Sample YAML
 ```
-apiVersion: v1
-kind: profile
-metadata:
-  name: profile1
-  labels:
-  - foo:bar
-spec:
-  tags:
-  - tag1
-  - tag2s
-  ingress:
-  - action: deny
-    protocol: tcp
-    icmp:
-      - type: 10
-      - code: 6
-    "!protocol": ipv6
-    "!icmp":
-      - type: 19
-      - code: 255
-    source:
-      tag: group=='production'
-      net: 10.0.0.0/16
-      selector: type=='application'
-      ports: [1234,"10:20"]
-      "!tag": bartag
-      "!net": 10.1.0.0/16
-      "!selector": type=='database'
-      "!ports": [1050]
-    destination:
-      tag: alphatag
-      net: 10.2.0.0/16
-      selector: type=='application'
-      ports: ["100:200"]
-      "!tag": type=='bananas'
-      "!net": 10.3.0.0/16
-      "!selector": type=='apples'
-      "!ports": ["1050:110"]
-  egress:
-  - action: allow
-    source:
-      selector: type=='application'
+- apiVersion: v1
+  kind: profile
+  metadata:
+    labels:
+      foo: bar
+    name: profile1
+  spec:
+    tags:
+    - tag1
+    - tag2s
+    ingress:
+    -  action: deny
+      protocol: tcp
+      icmp:
+        type: 10
+        code: 6
+      ipVersion: 4
+      "!icmp":
+        type: 19
+        code: 255
+      source:
+        tag: production
+        net: 10.0.0.0/16
+        selector: type=='application'
+        ports: [1234,"10:20"]
+        "!tag": bartag
+        "!net": 10.1.0.0/16
+        "!selector": type=='database'
+        "!ports": [1050]
+      destination:
+        tag: alphatag
+        net: 10.2.0.0/16
+        selector: type=='application'
+        ports: ["100:200"]
+        "!tag": bananas
+        "!net": 10.3.0.0/16
+        "!selector": type=='apples'
+        "!ports": ["110:1050"]
+    egress:
+    - action: allow
+      destination: {}
+      source:
+        selector: type=='application'
 ```
 The above YAML spec defines almost all of possible fields for a profile specifications, with the following exceptions:
 - "egress" supports all fields that "ingress" does.
@@ -71,6 +72,7 @@ See Calico's [See selector expression documentation](http://docs.projectcalico.o
 | action      | Action to perform when matching this rule.  Can be one of: `allow`, `deny`, `log` |  | string |
 | protocol    | Positive protocol match.  | Can be one of: `tcp`, `udp`, `icmp`, `icmpv6`, `sctp`, `udplite`, or an integer 1-255. | string |
 | icmp        | ICMP match criteria.     | | [ICMPSpec](#icmpspec) |
+| ipVersion   | IP version.              | Can be one of: 4 or 6. | int |
 | "!protocol" | Negative protocol match. | Can be one of: `tcp`, `udp`, `icmp`, `icmpv6`, `sctp`, `udplite`, or an integer 1-255. | string |
 | "!icmp"     | Negative match on ICMP. | | [ICMPSpec](#icmpspec) |
 | source      | Source match parameters. |  | [EntityRule](#entityrule) |

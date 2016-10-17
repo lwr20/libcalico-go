@@ -49,6 +49,20 @@ func init() {
 				Expect(err).ToNot(BeNil(),
 					"expected json unmarshal to error")
 			}
+
+			// Also test using json.Unmarshal
+			new = reflect.New(typ)
+			err = json.Unmarshal([]byte(jtext), new)
+
+			if expected != nil {
+				Expect(err).To(BeNil(),
+					"expected json unmarshal to not error")
+				Expect(new.Elem().Interface()).To(Equal(expected),
+					"expected value not same as json unmarshalled value")
+			} else {
+				Expect(err).ToNot(BeNil(),
+					"expected json unmarshal to error")
+			}
 		},
 		// ASNumber tests.
 		Entry("should accept 0 AS number as int", "0", asNumberType, numorstring.ASNumber(0)),
@@ -71,6 +85,7 @@ func init() {
 		Entry("should accept 65535 port as int", "65535", portType, numorstring.SinglePort(65535)),
 		Entry("should accept 0:65535 port range as string", "\"0:65535\"", portType, portFromRange(0, 65535)),
 		Entry("should accept 1:10 port range as string", "\"1:10\"", portType, portFromRange(1, 10)),
+		Entry("should accept 10:20 port range as string", "\"10:20\"", portType, portFromRange(10, 20)),
 		Entry("should reject -1 port as int", "-1", portType, nil),
 		Entry("should reject 65536 port as int", "65536", portType, nil),
 		Entry("should reject 0:65536 port range as string", "\"0:65536\"", portType, nil),
